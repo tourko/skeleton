@@ -3,7 +3,7 @@
 int main(int argc, char** argv)
 {
   Application& app = Application::init(argc, argv);
-  app.run();
+  app.start();
 
   return 0;
 }

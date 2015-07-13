@@ -3,8 +3,6 @@
 /*
  * Only once instance of Application class can exist per process.
  * Hence the class is implemented as singleton.
- * Class is meant to be instanciated and used in the main thread only
- * and thus it is implemented without thread safity in mind.
  */
 class Application {
 private:
@@ -16,10 +14,15 @@ private:
 	Application& operator=(Application const&);
 
 	static Application* appInstance;
+	bool isRunning = false;
+
 	static Application& instance();
 	static void cleanup();
+	static void catch_signal(int sig);
 
 public:
   static Application& init(int argc, char** argv);
 	void run();
+	void start();
+	void stop();
 };
