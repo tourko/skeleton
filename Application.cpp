@@ -47,11 +47,10 @@ Application& Application::init(int UNUSED(argc), char** UNUSED(argv))
 
   // Register signals handler
   DBG1("Registering signals handler.");
-  signal(SIGTERM, catch_signal);  //<-- Catch Termination Signal (eg kill 9 <pid>)
-  signal(SIGINT,  catch_signal);  //<-- Catch keyboard interrupt (eg CTRL-C)
-  signal(SIGHUP,  catch_signal);  //<-- Catch death/hangup of tty (we use this for graceful shutdown on DIE(..))
-  signal(SIGTSTP, catch_signal);  //<-- Catch Stop event on tty (eg CTRL-Z)
+  signal(SIGINT,  catch_signal);  //<-- Catch keyboard interrupt (e.g. CTRL-C)
   signal(SIGTRAP, catch_signal);  //<-- Catch SIGTRAP but ingore them. Used to trap to GDB if gdb is attached
+  signal(SIGTERM, catch_signal);  //<-- Catch Termination Signal (e.g. kill <pid>)
+  signal(SIGTSTP, catch_signal);  //<-- Catch suspends a process (e.g. CTRL-Z)
 
   return Application::instance();
 }
@@ -90,23 +89,23 @@ void Application::stop()
 
 // Unix signal handler
 void Application::catch_signal(int sig) {
-  DBG1("Caught signal %s.", strsignal(sig));
-
   switch (sig) {
     case SIGTRAP: // <-- Ignore it. GDB will catch this, but we do not need it for normal runtime (it's thrown by die_assert() while staying in context)
+    case SIGTSTP: // <-- Ignore it.
+      DBG1("Caught signal %s. Ignoring the signal.", strsignal(sig));
       return;
-    case SIGTSTP: // <-- Catch Stop Signal on tty (e.g. CTRL-Z)
-      INF("No support for tty stop.");
-      //signal(SIGTSTP, catch_signal);
-      return;
-    case SIGTERM: // <-- Catch Termination Signal (e.g. kill 9 <pid>)
-      INF("Forcing application termination.");
+
+    case SIGTERM: // <-- Catch Termination Signal (e.g. kill <pid>) and quite immediatelly
+      DBG1("Caught signal %s. Terminating application immediatelly.", strsignal(sig));
       exit(EXIT_FAILURE);
-    case SIGINT:
-      INF("Graceful shutdown of application.");
+
+    case SIGINT: // <-- Graceful shutdown of application on CTRL-C or 'kill -SIGINT <pid>'
+      DBG1("Caught signal %s. Initiating graceful application shutdown.", strsignal(sig));
       Application::instance().stop();
       break;
+      
     default:
-      INF("Ignoring the signal.");
+      INF("Caught unhandled signal %s. Ignoring the signal.", strsignal(sig));
+      break;
   }
 }
