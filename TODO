@@ -1,0 +1,3 @@
+* Chnage logging to clog stream
+* Indent log messages according to backtrace
+* Implement arguments parsing

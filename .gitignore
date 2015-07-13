@@ -4,6 +4,11 @@
 *.o
 *.obj
 
+# Intermediate Files
+*.i
+*.ii
+*.s
+
 # Precompiled Headers
 *.gch
 *.pch
@@ -12,9 +17,6 @@
 *.so
 *.dylib
 *.dll
-
-# Fortran module files
-*.mod
 
 # Compiled Static libraries
 *.lai
@@ -26,3 +28,6 @@
 *.exe
 *.out
 *.app
+
+# Atom config files
+.remote-sync.json
